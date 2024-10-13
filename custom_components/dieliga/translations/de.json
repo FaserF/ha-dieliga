@@ -1,0 +1,15 @@
+{
+  "title": "dieLiga Team Monitor",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up dieLiga Team Monitor",
+        "description": "Monitor your team's league ranking and match results.",
+        "data": {
+          "team_name": "Team Name",
+          "liga_url": "League URL"
+        }
+      }
+    }
+  }
+}
