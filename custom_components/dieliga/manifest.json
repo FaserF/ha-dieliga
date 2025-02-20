@@ -9,7 +9,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/faserf/ha-dieliga/issues",
   "requirements": [
-    "beautifulsoup4==4.12.3"
+    "beautifulsoup4==4.13.3"
   ],
   "version": "1.0.0"
 }
