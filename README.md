@@ -1,5 +1,6 @@
 # dieliga Homeassistant Integration
-The `dieliga` sensor will give informations about your liga. It is compatible with any scoreboard, that is based on "dieLiga". It is tested only with (Volleyball-Freizeit Ost)[https://www.ost.volleyball-freizeit.de/].
+The `dieliga` sensor will give informations about your liga. It is compatible with any scoreboard, that is based on "dieLiga". It is tested only with [Volleyball-Freizeit Ost](https://www.ost.volleyball-freizeit.de/).
+After adding this integration, you will have two sensors, one showing the current scoreboard and another containing all the liga games.
 
 ## Installation
 ### 1. Using HACS (recommended way)
