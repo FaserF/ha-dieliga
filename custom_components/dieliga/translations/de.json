@@ -3,11 +3,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up dieLiga Team Monitor",
-        "description": "Monitor your team's league ranking and match results.",
+        "title": "Richte den dieLiga Team Monitor ein",
+        "description": "Überwache die Liga-Rangliste und Spielergebnisse deines Teams.",
         "data": {
-          "team_name": "Team Name",
-          "liga_url": "League URL"
+          "base_url": "Gib die Basis-URL der dieliga ein, die überwacht werden soll. Zum Beispiel: https://www.ost.volleyball-freizeit.de (füge kein '/' am Ende hinzu).",
+          "liga_id": "Gib die Liga-ID ein, die überwacht werden soll. Diese ID ändert sich mit jeder neuen Saison. Du kannst die ID finden, indem du 'Spielplan & Tabelle' in deinem Browser öffnest und die 4/5-stellige ID von dort kopierst.",
+          "refresh_time": "Gib das Aktualisierungsintervall in Minuten ein."
         }
       }
     }

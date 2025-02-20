@@ -1,13 +1,25 @@
+import logging
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from .const import DOMAIN
 
-async def async_setup_entry(hass, config_entry):
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][config_entry.entry_id] = config_entry.data
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(config_entry, "sensor")
-    )
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup(hass: HomeAssistant, config: dict):
+    """Set up the integration."""
+    _LOGGER.debug("dieLiga integration setup called.")
     return True
 
-async def async_unload_entry(hass, entry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up dieLiga from a config entry."""
+    _LOGGER.debug("Setting up dieLiga entry with entry_id: %s", entry.entry_id)
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+    hass.data[DOMAIN] = {}
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Unload dieLiga config entry."""
+    _LOGGER.debug("Unloading dieLiga entry with entry_id: %s", entry.entry_id)
     await hass.config_entries.async_forward_entry_unload(entry, "sensor")
+    hass.data[DOMAIN].pop(entry.entry_id)
     return True

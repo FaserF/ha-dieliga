@@ -1,3 +1,4 @@
 DOMAIN = "dieliga"
-TEAM_NAME = "team_name"
-LIGA_URL = "liga_url"
+CONF_URL = "base_url"
+CONF_LIGA_ID = "liga_id"
+CONF_REFRESH_TIME = "refresh_time"

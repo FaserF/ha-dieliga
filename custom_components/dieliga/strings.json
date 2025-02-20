@@ -6,8 +6,9 @@
         "title": "Set up dieLiga Team Monitor",
         "description": "Monitor your team's league ranking and match results.",
         "data": {
-          "team_name": "Team Name",
-          "liga_url": "League URL"
+          "base_url": "Input the base URL from the dieliga that should be tracked. For example: https://www.ost.volleyball-freizeit.de (do not append a '/' at the end).",
+          "liga_id": "Input your liga ID that should be tracked. This ID changes every new season. You can find the ID by opening Schedule & Table in your browser and copying the 4/5 digit ID from there.",
+          "refresh_time": "Input the refresh interval in minutes."
         }
       }
     }

@@ -1,5 +1,5 @@
 # dieliga Homeassistant Integration
-The `dieliga` sensor will give informations about your liga. It is compatible with any scoreboard, that is based on "dieLiga".
+The `dieliga` sensor will give informations about your liga. It is compatible with any scoreboard, that is based on "dieLiga". It is tested only with (Volleyball-Freizeit Ost)[https://www.ost.volleyball-freizeit.de/].
 
 ## Installation
 ### 1. Using HACS (recommended way)
@@ -23,18 +23,12 @@ Go to Configuration -> Integrations and click on "add integration". Then search 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=dieliga)
 
 ### Configuration Variables
-- **team name**: input your dieliga teamname (it usually is your dieliga subdomain, f.e.: teamname.dieliga.de)
+- **base url**: input the base url from the dieliga that should be tracked. For example https://www.ost.volleyball-freizeit.de (please do not append a '/' in the end!).
+- **liga id**: input your liga id, that should be tracked. Unfortunatly this changes every new season. You can recieve it by opening Schedule & Table in your browser and then copying the 4/5 digit ID from there. You can find the ID here, as an example this would be 1031: https://www.ost.volleyball-freizeit.de/schedule/overview/1031
 - **refresh time**: the refresh interval in minutes
-- **event limit**: the event limit count that should be fetched
-- **fetch player info**: try player info fetching (like event response) or not -> If the events are not public, you can disable this to lower the traffic
-- **fetch comments**: try event comments fetching -> If the events are not public, you can disable this to lower the traffic
-
-**IMPORTANT: Currently it looks like sign in by "bots" are blocked from dieliga, therefore login wont work (yet)**
-- **username** (optional - without less informations can be fetched): input your dieliga username (usually an email)
-- **password** (optional - without less informations can be fetched): input your dieliga password
 
 ## Sensor Attributes
-The data is being refreshed every 30 minutes per default, unless otherwise defined in the refresh time.
+The data is being refreshed every 1440 minutes (once a day) per default, unless otherwise defined in the refresh time.
 
 ## Bug reporting
 Open an issue over at [github issues](https://github.com/FaserF/ha-dieliga/issues). Please prefer sending over a log with debugging enabled.
@@ -51,5 +45,3 @@ You can then find the log in the HA settings -> System -> Logs -> Enter "dieliga
 
 ## Thanks to
 Thanks to dieliga for their great software!
-
-The data is coming from the [dieliga.online](https://www.dieliga.online/) website.
