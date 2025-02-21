@@ -26,6 +26,7 @@ Go to Configuration -> Integrations and click on "add integration". Then search 
 ### Configuration Variables
 - **base url**: input the base url from the dieliga that should be tracked. For example https://www.ost.volleyball-freizeit.de (please do not append a '/' in the end!).
 - **liga id**: input your liga id, that should be tracked. Unfortunatly this changes every new season. You can recieve it by opening Schedule & Table in your browser and then copying the 4/5 digit ID from there. You can find the ID here, as an example this would be 1031: https://www.ost.volleyball-freizeit.de/schedule/overview/1031
+- **team_name**: This is optional. You can provide your teamname (it has to be spelled exactly like on the liga page!), then this integration will display your teams scoreboard position as sensor state and will filter the upcoming matches to only display matches of your team. 
 - **refresh time**: the refresh interval in minutes
 
 ## Sensor Attributes

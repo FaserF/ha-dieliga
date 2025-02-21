@@ -6,6 +6,7 @@ import homeassistant.helpers.config_validation as cv
 from .const import (
     CONF_URL,
     CONF_LIGA_ID,
+    CONF_TEAM_NAME,
     CONF_REFRESH_TIME,
     DOMAIN,
 )
@@ -26,7 +27,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             _LOGGER.debug("Initialized dieliga integration with liga_id: %s", user_input[CONF_LIGA_ID])
             return self.async_create_entry(
-                title="Dieliga Integration", data=user_input
+                title=f"Dieliga {user_input[CONF_LIGA_ID]}", data=user_input
             )
 
         data_schema = vol.Schema(
@@ -34,6 +35,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_URL, default="https://www.ost.volleyball-freizeit.de/"): str,
                 vol.Required(CONF_LIGA_ID, default=1234): int,
                 vol.Required(CONF_REFRESH_TIME, default=1440): int,
+                vol.Optional(CONF_TEAM_NAME, default=None): str,
             }
         )
 
@@ -65,6 +67,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         options = self.config_entry.data
         options_schema = vol.Schema({
             vol.Optional(CONF_REFRESH_TIME, default=options.get(CONF_REFRESH_TIME, 1440)): cv.positive_int,
+            vol.Optional(CONF_TEAM_NAME, default=options.get(CONF_TEAM_NAME, None)): cv.string,
         })
 
         return self.async_show_form(

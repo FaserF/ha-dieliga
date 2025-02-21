@@ -21,5 +21,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload dieLiga config entry."""
     _LOGGER.debug("Unloading dieLiga entry with entry_id: %s", entry.entry_id)
     await hass.config_entries.async_forward_entry_unload(entry, "sensor")
-    hass.data[DOMAIN].pop(entry.entry_id)
+    if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
+        hass.data[DOMAIN].pop(entry.entry_id)
     return True
