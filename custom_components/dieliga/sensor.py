@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 _LOGGER = logging.getLogger(__name__)
 
-class DieligaTableSensor(SensorEntity):
+class DieligaScoreboardSensor(SensorEntity):
     """Sensor to fetch the league table."""
 
     def __init__(self, base_url, liga_id, team_name=None):
@@ -74,8 +74,7 @@ class DieligaTableSensor(SensorEntity):
 
                 # Check if the team matches the user's input team name
                 if self._team_name and team_info["name"].lower() == self._team_name.lower():
-                    team_position = index + 1  # The team's position in the league
-                    break  # Stop searching once the team is found
+                    team_position = index + 1
 
             # Set the league name as the state
             if team_position:
@@ -310,4 +309,4 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     team_name = config_entry.data.get("team_name")
 
     _LOGGER.debug("Setting up dieLigaSensors for base url: %s with liga id: %s", base_url, liga_id)
-    async_add_entities([DieligaTableSensor(base_url, liga_id, team_name), DieligaScheduleSensor(base_url, liga_id, team_name)])
+    async_add_entities([DieligaScoreboardSensor(base_url, liga_id, team_name), DieligaScheduleSensor(base_url, liga_id, team_name)])
