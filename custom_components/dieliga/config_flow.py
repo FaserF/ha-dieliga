@@ -22,19 +22,20 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
+            liga_id = str(user_input[CONF_LIGA_ID])
             await self.async_set_unique_id(user_input[CONF_LIGA_ID])
             self._abort_if_unique_id_configured()
 
             _LOGGER.debug("Initialized dieliga integration with liga_id: %s", user_input[CONF_LIGA_ID])
             return self.async_create_entry(
-                title=f"Dieliga {user_input[CONF_LIGA_ID]}", data=user_input
+                title=f"dieLiga {liga_id}", data=user_input
             )
 
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_URL, default="https://www.ost.volleyball-freizeit.de/"): str,
+                vol.Required(CONF_URL, default="https://www.ost.volleyball-freizeit.de"): str,
                 vol.Required(CONF_LIGA_ID, default=1234): int,
-                vol.Required(CONF_REFRESH_TIME, default=1440): int,
+                vol.Required(CONF_REFRESH_TIME, default=24): int,
                 vol.Optional(CONF_TEAM_NAME, default=None): str,
             }
         )

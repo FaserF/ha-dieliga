@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import SensorEntity
 from datetime import datetime
+from homeassistant.helpers.event import async_call_later
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,20 +12,20 @@ class DieligaTableSensor(SensorEntity):
     """Sensor to fetch the league table."""
 
     def __init__(self, base_url, liga_id, team_name=None):
-        self._base_url = base_url
+        self._base_url = str(base_url)
         self._liga_id = str(liga_id)
-        self._team_name = team_name
+        self._team_name = str(team_name)
         self._name = f"Dieliga Table {team_name}" if team_name else f"Dieliga Table {liga_id}"
         self._state = None
         self._unique_id = f"dieliga_table_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:podium-gold"
-        self._url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
-        self._attribution = f"Data provided by API {self._url}"
+        self._attribution = f"Data provided by API {self._base_url}/schedule/summary/{self._liga_id}?output=xml"
+        self._last_updated = None
 
     async def async_update(self):
         """Fetch the latest league table."""
-        url = {self._url}
+        url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
@@ -32,6 +33,7 @@ class DieligaTableSensor(SensorEntity):
                     data = await response.text()
                     # Parse the XML response
                     self._parse_xml(data)
+                    self._last_updated = datetime.now().isoformat()
                 else:
                     _LOGGER.error("Failed to fetch league table, status code: %s", response.status)
         except Exception as e:
@@ -81,6 +83,7 @@ class DieligaTableSensor(SensorEntity):
 
             # Add the teams list as an attribute
             self._attributes["teams"] = teams
+            self._attributes["last_updated"] = self._last_updated
 
         except Exception as e:
             _LOGGER.error("Error parsing XML data: %s", e)
@@ -100,7 +103,11 @@ class DieligaTableSensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
+        return {
+            "teams": self._attributes["teams"],
+            "last_updated": self._last_updated,
+            "attribution": self._attribution,
+        }
 
     @property
     def icon(self):
@@ -111,20 +118,20 @@ class DieligaScheduleSensor(SensorEntity):
     """Sensor to fetch the match schedule."""
 
     def __init__(self, base_url, liga_id, team_name=None):
-        self._base_url = base_url
+        self._base_url = str(base_url)
         self._liga_id = str(liga_id)
-        self._team_name = team_name
+        self._team_name = str(team_name)
         self._name = f"Dieliga Schedule {team_name}" if team_name else f"Dieliga Schedule {liga_id}"
         self._state = None
         self._unique_id = f"dieliga_schedule_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:calendar-month-outline"
-        self._url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
-        self._attribution = f"Data provided by API {self._url}"
+        self._attribution = f"Data provided by API {self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
+        self._last_updated = None
 
     async def async_update(self):
         """Fetch the latest match schedule."""
-        url = {self._url}
+        url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
@@ -132,6 +139,7 @@ class DieligaScheduleSensor(SensorEntity):
                     data = await response.text()
                     # Parse the XML response for the match schedule
                     self._parse_xml(data)
+                    self._last_updated = datetime.now().isoformat()
                 else:
                     _LOGGER.error("Failed to fetch match schedule, status code: %s", response.status)
         except Exception as e:
@@ -262,7 +270,13 @@ class DieligaScheduleSensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
+        return {
+            "games": self._attributes["games"],
+            "total_games": self._attributes["total_games"],
+            "completed_games": self._attributes["completed_games"],
+            "last_updated": self._last_updated,
+            "attribution": self._attribution,
+        }
 
     @property
     def icon(self):
