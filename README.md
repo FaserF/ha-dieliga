@@ -43,6 +43,75 @@ The state of the scoreboard sensor contains the team position (if a team name ha
 
 The attributes contains all the relevant team informations.
 
+## Accessing the data
+
+### Automations
+```yaml
+automation:
+  - alias: "Notification When Team Reaches Position in League Table"
+    trigger:
+      platform: state
+      entity_id: sensor.dieliga_scoreboard_teamname
+    condition:
+      condition: numeric_state
+      entity_id: sensor.dieliga_scoreboard_teamname
+      below: 5
+    action:
+      service: notify.notify
+      data:
+        message: "Congratulations! Your team is now in position {{ state('sensor.dieliga_scoreboard_teamname') }} in the table!"
+```
+
+```yaml
+automation:
+  - alias: "Reminder for Upcoming Game"
+    trigger:
+      platform: state
+      entity_id: sensor.dieliga_schedule_teamname
+    condition:
+      condition: template
+      value_template: >
+        {% set upcoming_game = states('sensor.dieliga_schedule_teamname') %}
+        {% if upcoming_game %}
+          {% set game_date = strptime(upcoming_game, '%Y-%m-%d') %}
+          {% if game_date and game_date > now() %}
+            {{ game_date - now() < timedelta(hours=48) }}
+          {% else %}
+            false
+          {% endif %}
+        {% else %}
+          false
+        {% endif %}
+    action:
+      service: notify.notify
+      data:
+        message: "Reminder: Your game is coming up on {{ upcoming_game }}! Get ready!"
+```
+
+```yaml
+automation:
+  - alias: "Notify If No Upcoming Matches in the Next Week"
+    trigger:
+      platform: time
+      at: "09:00:00"
+    condition:
+      condition: template
+      value_template: >
+        {% set upcoming_matches = state_attr('sensor.dieliga_schedule_teamname', 'games') %}
+        {% set no_upcoming_matches = true %}
+        {% for match in upcoming_matches %}
+          {% set match_date = strptime(match['date'], '%Y-%m-%d') %}
+          {% if match_date and match_date > now() and match_date < now() + timedelta(days=7) %}
+            {% set no_upcoming_matches = false %}
+          {% endif %}
+        {% endfor %}
+        {{ no_upcoming_matches }}
+    action:
+      service: notify.notify
+      data:
+        message: "Reminder: There are no matches scheduled for your team in the next week. Check the schedule for updates."
+```
+
 ## Bug reporting
 Open an issue over at [github issues](https://github.com/FaserF/ha-dieliga/issues). Please prefer sending over a log with debugging enabled.
 
