@@ -1,12 +1,12 @@
 import logging
 import aiohttp
 import xml.etree.ElementTree as ET
-from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import SensorEntity
-from datetime import datetime
-from homeassistant.helpers.event import async_call_later
+from datetime import datetime, timedelta
 
 _LOGGER = logging.getLogger(__name__)
+
+# SCAN_INTERVAL = timedelta(hours=12)
 
 class DieligaTableSensor(SensorEntity):
     """Sensor to fetch the league table."""
@@ -15,8 +15,9 @@ class DieligaTableSensor(SensorEntity):
         self._base_url = str(base_url)
         self._liga_id = str(liga_id)
         self._team_name = str(team_name)
-        self._name = f"Dieliga Table {team_name}" if team_name else f"Dieliga Table {liga_id}"
+        self._name = f"dieLiga Scoreboard {team_name}" if team_name else f"dieLiga Scoreboard {liga_id}"
         self._state = None
+        self._previous_state = None
         self._unique_id = f"dieliga_table_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:podium-gold"
@@ -24,7 +25,7 @@ class DieligaTableSensor(SensorEntity):
         self._last_updated = None
 
     async def async_update(self):
-        """Fetch the latest league table."""
+        """Fetch the latest league scoreboard."""
         url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
         try:
             async with aiohttp.ClientSession() as session:
@@ -84,6 +85,7 @@ class DieligaTableSensor(SensorEntity):
             # Add the teams list as an attribute
             self._attributes["teams"] = teams
             self._attributes["last_updated"] = self._last_updated
+            self._attributes["attribution"] = self._attribution
 
         except Exception as e:
             _LOGGER.error("Error parsing XML data: %s", e)
@@ -94,6 +96,8 @@ class DieligaTableSensor(SensorEntity):
 
     @property
     def state(self):
+        if self._state is None:
+            return self._previous_state or "Unknown"
         return self._state
 
     @property
@@ -103,16 +107,20 @@ class DieligaTableSensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {
-            "teams": self._attributes["teams"],
-            "last_updated": self._last_updated,
-            "attribution": self._attribution,
-        }
+        if not self._attributes:
+            return self._previous_attributes
+        return self._attributes
 
     @property
     def icon(self):
         """Return the icon of the sensor."""
         return self._icon
+
+    async def async_added_to_hass(self):
+        """Called when the sensor is added to Home Assistant."""
+        # Ensure the previous state and attributes are retained across restarts
+        self._previous_state = self._state
+        self._previous_attributes = self._attributes
 
 class DieligaScheduleSensor(SensorEntity):
     """Sensor to fetch the match schedule."""
@@ -121,8 +129,9 @@ class DieligaScheduleSensor(SensorEntity):
         self._base_url = str(base_url)
         self._liga_id = str(liga_id)
         self._team_name = str(team_name)
-        self._name = f"Dieliga Schedule {team_name}" if team_name else f"Dieliga Schedule {liga_id}"
+        self._name = f"dieLiga Schedule {team_name}" if team_name else f"dieLiga Schedule {liga_id}"
         self._state = None
+        self._previous_state = None
         self._unique_id = f"dieliga_schedule_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:calendar-month-outline"
@@ -241,6 +250,8 @@ class DieligaScheduleSensor(SensorEntity):
             self._attributes["games"] = games
             self._attributes["total_games"] = total_games
             self._attributes["completed_games"] = completed_games
+            self._attributes["last_updated"] = self._last_updated
+            self._attributes["attribution"] = self._attribution
 
             # If there are games, calculate the completion percentage
             if total_games > 0:
@@ -261,6 +272,8 @@ class DieligaScheduleSensor(SensorEntity):
 
     @property
     def state(self):
+        if self._state is None:
+            return self._previous_state or "Unknown"
         return self._state
 
     @property
@@ -270,18 +283,20 @@ class DieligaScheduleSensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {
-            "games": self._attributes["games"],
-            "total_games": self._attributes["total_games"],
-            "completed_games": self._attributes["completed_games"],
-            "last_updated": self._last_updated,
-            "attribution": self._attribution,
-        }
+        if not self._attributes:
+            return self._previous_attributes
+        return self._attributes
 
     @property
     def icon(self):
         """Return the icon of the sensor."""
         return self._icon
+
+    async def async_added_to_hass(self):
+        """Called when the sensor is added to Home Assistant."""
+        # Ensure the previous state and attributes are retained across restarts
+        self._previous_state = self._state
+        self._previous_attributes = self._attributes
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the sensor platform."""

@@ -30,7 +30,7 @@ Go to Configuration -> Integrations and click on "add integration". Then search 
 - **refresh time**: the refresh interval in hours
 
 ## Sensor Attributes
-The data is being refreshed every 24 hours per default, unless otherwise defined in the refresh time.
+The data is being refreshed every 12 hours per default, unless otherwise defined in the refresh time.
 
 The state of the schedule sensor contains in percentage how many games have been completed already this season.
 The state of the scoreboard sensor contains the team position (if a team name has been provided).
