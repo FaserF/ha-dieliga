@@ -5,7 +5,13 @@ After adding this integration, you will have two sensors, one showing the curren
 ## Installation
 ### 1. Using HACS (recommended way)
 
-Not available in HACS yet, but it is planned.
+This integration is NO official HACS Integration right now.
+
+Open HACS then install the "dieliga" integration or use the link below.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=FaserF&repository=ha-dieliga&category=integration)
+
+If you use this method, your component will always update to the latest version.
 
 ### 2. Manual
 
