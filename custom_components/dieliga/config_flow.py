@@ -35,7 +35,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(CONF_URL, default="https://www.ost.volleyball-freizeit.de"): str,
                 vol.Required(CONF_LIGA_ID, default=1234): int,
-                vol.Required(CONF_REFRESH_TIME, default=12): int,
+                #vol.Required(CONF_REFRESH_TIME, default=12): int,
                 vol.Optional(CONF_TEAM_NAME, default=None): str,
             }
         )
@@ -67,7 +67,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         options = self.config_entry.data
         options_schema = vol.Schema({
-            vol.Optional(CONF_REFRESH_TIME, default=options.get(CONF_REFRESH_TIME, 1440)): cv.positive_int,
+            #vol.Optional(CONF_REFRESH_TIME, default=options.get(CONF_REFRESH_TIME, 1440)): cv.positive_int,
             vol.Optional(CONF_TEAM_NAME, default=options.get(CONF_TEAM_NAME, None)): cv.string,
         })
 

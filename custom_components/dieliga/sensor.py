@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 
 _LOGGER = logging.getLogger(__name__)
 
-# SCAN_INTERVAL = timedelta(hours=12)
-
 class DieligaTableSensor(SensorEntity):
     """Sensor to fetch the league table."""
 
@@ -26,15 +24,19 @@ class DieligaTableSensor(SensorEntity):
 
     async def async_update(self):
         """Fetch the latest league scoreboard."""
+        if self._last_updated and datetime.now() - self._last_updated < timedelta(hours=12):
+            _LOGGER.debug("Update skipped; last update was less than 12 hours ago.")
+            return
+
         url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
+                self._last_updated = datetime.now().isoformat()
                 if response.status == 200:
                     data = await response.text()
                     # Parse the XML response
                     self._parse_xml(data)
-                    self._last_updated = datetime.now().isoformat()
                 else:
                     _LOGGER.error("Failed to fetch league table, status code: %s", response.status)
         except Exception as e:
@@ -140,15 +142,18 @@ class DieligaScheduleSensor(SensorEntity):
 
     async def async_update(self):
         """Fetch the latest match schedule."""
+        if self._last_updated and datetime.now() - self._last_updated < timedelta(hours=12):
+            _LOGGER.debug("Update skipped; last update was less than 12 hours ago.")
+            return
         url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
+                self._last_updated = datetime.now().isoformat()
                 if response.status == 200:
                     data = await response.text()
                     # Parse the XML response for the match schedule
                     self._parse_xml(data)
-                    self._last_updated = datetime.now().isoformat()
                 else:
                     _LOGGER.error("Failed to fetch match schedule, status code: %s", response.status)
         except Exception as e:
