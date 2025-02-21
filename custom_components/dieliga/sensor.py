@@ -3,6 +3,7 @@ import aiohttp
 import xml.etree.ElementTree as ET
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import SensorEntity
+from datetime import datetime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,10 +19,12 @@ class DieligaTableSensor(SensorEntity):
         self._unique_id = f"dieliga_table_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:podium-gold"
+        self._url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
+        self._attribution = f"Data provided by API {self._url}"
 
     async def async_update(self):
         """Fetch the latest league table."""
-        url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
+        url = {self._url}
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
@@ -116,10 +119,12 @@ class DieligaScheduleSensor(SensorEntity):
         self._unique_id = f"dieliga_schedule_{liga_id}"
         self._attributes = {}
         self._icon = "mdi:calendar-month-outline"
+        self._url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
+        self._attribution = f"Data provided by API {self._url}"
 
     async def async_update(self):
         """Fetch the latest match schedule."""
-        url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
+        url = {self._url}
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
@@ -138,9 +143,6 @@ class DieligaScheduleSensor(SensorEntity):
             # Parse XML data
             root = ET.fromstring(xml_data)
 
-            # Set the league name as the state
-            self._state = root.find("league").text if root.find("league") is not None else "Unknown"
-
             # Extract other relevant attributes
             self._attributes = {
                 "group": root.find("group").text if root.find("group") is not None else "Unknown",
@@ -151,12 +153,12 @@ class DieligaScheduleSensor(SensorEntity):
                 _LOGGER.debug("Filtering for team_name: %s", self._team_name)
             # Extract match details
             games = []
+            completed_games = 0
+            total_games = 0
             for day in root.findall(".//day_of_play"):
                 for game in day.findall("game"):
                     team_a_name = game.find("team_a").get("name") if game.find("team_a") is not None else "Unknown"
                     team_b_name = game.find("team_b").get("name") if game.find("team_b") is not None else "Unknown"
-
-                    _LOGGER.debug("Checking game: %s vs %s", team_a_name, team_b_name)
 
                     # Only add the game if the team_name is found in either team_a or team_b
                     if self._team_name:
@@ -178,10 +180,25 @@ class DieligaScheduleSensor(SensorEntity):
                                 "state": game.find("state").text if game.find("state") is not None else "Unknown",
                             }
                             games.append(game_info)
+
+                            game_date = game.find("new_date").text if game.find("new_date") is not None and game.find("new_date").text not in ("-", "") else (game.find("date").text if game.find("date") is not None else "Unknown")
+                            if game_date != "Unknown":
+                                try:
+                                    game_date = datetime.strptime(game_date, "%Y-%m-%d")
+                                    if game_date < datetime.now():
+                                        completed_games += 1
+                                except ValueError as e:
+                                    _LOGGER.warning("Invalid date format for game %s: %s", game.find("gamenr").text, game_date)
+                            else:
+                                _LOGGER.debug("Game date is unknown for game %s", game.find("gamenr").text)
+
+                            total_games += 1
+
                         else:
                             _LOGGER.debug("Skipping game: %s vs %s", team_a_name, team_b_name)
                     else:
                         # If no team_name is provided, include all games
+                        _LOGGER.debug("Processing game: %s vs %s", team_a_name, team_b_name)
                         game_info = {
                             "game_number": game.find("gamenr").text if game.find("gamenr") is not None else "Unknown",
                             "date": game.find("date").text if game.find("date") is not None else "Unknown",
@@ -199,8 +216,33 @@ class DieligaScheduleSensor(SensorEntity):
                         }
                         games.append(game_info)
 
+                        game_date = game.find("new_date").text if game.find("new_date") is not None and game.find("new_date").text not in ("-", "") else (game.find("date").text if game.find("date") is not None else "Unknown")
+                        if game_date != "Unknown":
+                            try:
+                                game_date = datetime.strptime(game_date, "%Y-%m-%d")
+                                if game_date < datetime.now():
+                                    completed_games += 1
+                            except ValueError as e:
+                                _LOGGER.warning("Invalid date format for game %s: %s", game.find("gamenr").text, game_date)
+                        else:
+                            _LOGGER.debug("Game date is unknown for game %s", game.find("gamenr").text)
+
+                        total_games += 1
+
             # Add the games list as an attribute
             self._attributes["games"] = games
+            self._attributes["total_games"] = total_games
+            self._attributes["completed_games"] = completed_games
+
+            # If there are games, calculate the completion percentage
+            if total_games > 0:
+                percentage_completed = (completed_games / total_games) * 100
+                _LOGGER.debug("Detected total game count: %s where %s are already completed in the past. Using this to calculate the percentage.", total_games, completed_games)
+                self._state = f"{percentage_completed:.0f}"
+            else:
+                _LOGGER.debug("No games to calculate completion percentage.")
+                # Set the league name as the state
+                self._state = root.find("league").text if root.find("league") is not None else "Unknown"
 
         except Exception as e:
             _LOGGER.error("Error parsing XML data: %s", e)
