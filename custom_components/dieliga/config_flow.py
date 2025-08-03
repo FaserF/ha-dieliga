@@ -7,7 +7,7 @@ from .const import (
     CONF_URL,
     CONF_LIGA_ID,
     CONF_TEAM_NAME,
-    CONF_REFRESH_TIME,
+    #CONF_REFRESH_TIME,
     DOMAIN,
 )
 
@@ -23,7 +23,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             liga_id = str(user_input[CONF_LIGA_ID])
-            await self.async_set_unique_id(user_input[CONF_LIGA_ID])
+            await self.async_set_unique_id(liga_id)
             self._abort_if_unique_id_configured()
 
             _LOGGER.debug("Initialized dieliga integration with liga_id: %s", user_input[CONF_LIGA_ID])
@@ -47,7 +47,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
-        """Erstelle den Optionen-Flow (optional, falls du später Optionen anpassen möchtest)."""
+        """Create the options flow (optional if you want to customize options later)."""
         return OptionsFlowHandler(config_entry)
 
 

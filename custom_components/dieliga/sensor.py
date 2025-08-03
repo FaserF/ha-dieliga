@@ -32,7 +32,7 @@ class DieligaScoreboardSensor(SensorEntity):
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
-                self._last_updated = datetime.now().isoformat()
+                self._last_updated = datetime.now()
                 if response.status == 200:
                     data = await response.text()
                     # Parse the XML response
@@ -148,7 +148,7 @@ class DieligaScheduleSensor(SensorEntity):
         try:
             async with aiohttp.ClientSession() as session:
                 response = await session.get(url)
-                self._last_updated = datetime.now().isoformat()
+                self._last_updated = datetime.now()
                 if response.status == 200:
                     data = await response.text()
                     # Parse the XML response for the match schedule
