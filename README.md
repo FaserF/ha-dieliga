@@ -1,31 +1,36 @@
-# dieliga Homeassistant Integration
-The `dieliga` sensor will give informations about your liga. It is compatible with any scoreboard, that is based on "dieLiga". It is tested only with [Volleyball-Freizeit Ost](https://www.ost.volleyball-freizeit.de/).
-After adding this integration, you will have two sensors, one showing the current scoreboard and another containing all the liga games.
+# DieLiga Home Assistant Integration 🏐
 
-## Installation
-### 1. Using HACS (recommended way)
+The `dieliga` sensor provides information about your sports league from [DieLiga](https://www.ost.volleyball-freizeit.de/), compatible with scoreboard systems based on "dieLiga" (tested with **Volleyball-Freizeit Ost**).
 
-This integration is NO official HACS Integration right now.
+## Features ✨
 
-Open HACS then install the "dieliga" integration or use the link below.
+- **Scoreboard**: See your team's current position.
+- **Schedule**: Track upcoming games and season progress.
+- **Notifications**: Get alerts for rank changes and game reminders.
+
+## Installation 🛠️
+
+### 1. Using HACS (Recommended)
+
+This integration is not yet in the default HACS list but can be added as a **Custom Repository**.
+
+1.  Open HACS.
+2.  Add Custom Repository: `https://github.com/FaserF/ha-dieliga` (Category: Integration).
+3.  Click **Download**.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=FaserF&repository=ha-dieliga&category=integration)
 
-If you use this method, your component will always update to the latest version.
+### 2. Manual Installation
 
-### 2. Manual
+1.  Download the latest [Release](https://github.com/FaserF/ha-dieliga/releases/latest).
+2.  Extract the ZIP file.
+3.  Copy the `dieliga` folder to `<config>/custom_components/`.
 
-- Download the latest zip release from [here](https://github.com/FaserF/ha-dieliga/releases/latest)
-- Extract the zip file
-- Copy the folder "dieliga" from within custom_components with all of its components to `<config>/custom_components/`
+## Configuration ⚙️
 
-where `<config>` is your Home Assistant configuration directory.
-
->__NOTE__: Do not download the file by using the link above directly, the status in the "master" branch can be in development and therefore is maybe not working.
-
-## Configuration
-
-Go to Configuration -> Integrations and click on "add integration". Then search for "dieliga".
+1.  Go to **Settings** -> **Devices & Services**.
+2.  Click **Add Integration**.
+3.  Search for "dieliga".
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=dieliga)
 
