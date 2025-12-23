@@ -24,3 +24,20 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
         hass.data[DOMAIN].pop(entry.entry_id)
     return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+    if config_entry.version == 1:
+        new_unique_id = str(config_entry.unique_id)
+        if new_unique_id != config_entry.unique_id:
+            _LOGGER.debug("Migrating unique_id from %s to %s", config_entry.unique_id, new_unique_id)
+            hass.config_entries.async_update_entry(config_entry, unique_id=new_unique_id)
+
+        config_entry.version = 2
+
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+
+    return True

@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for dieliga integration."""
 
-    VERSION = 1
+    VERSION = 2
     async def async_step_user(self, user_input=None):
         """Handle the user input for the config flow."""
         errors = {}
