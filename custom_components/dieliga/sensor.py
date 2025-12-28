@@ -1,8 +1,9 @@
 import logging
-import aiohttp
 import xml.etree.ElementTree as ET
-from homeassistant.components.sensor import SensorEntity
 from datetime import datetime, timedelta
+
+import aiohttp
+from homeassistant.components.sensor import SensorEntity
 
 _LOGGER = logging.getLogger(__name__)
 

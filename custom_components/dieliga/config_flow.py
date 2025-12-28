@@ -1,13 +1,14 @@
 import logging
+
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-import homeassistant.helpers.config_validation as cv
-from .const import (
-    CONF_URL,
+
+from .const import (  # CONF_REFRESH_TIME,
     CONF_LIGA_ID,
     CONF_TEAM_NAME,
-    #CONF_REFRESH_TIME,
+    CONF_URL,
     DOMAIN,
 )
 
