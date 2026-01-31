@@ -40,7 +40,8 @@ SCHEDULE_XML = """
 </results>
 """
 
-@pytest.mark.async_timeout(10)
+@pytest.mark.asyncio
+@pytest.mark.timeout(10)
 async def test_get_scoreboard(aioclient_mock):
     """Test fetching scoreboard."""
     url = "https://example.com/schedule/summary/1234?output=xml"
@@ -54,7 +55,8 @@ async def test_get_scoreboard(aioclient_mock):
         assert len(data["teams"]) == 1
         assert data["teams"][0]["name"] == "Team 1"
 
-@pytest.mark.async_timeout(10)
+@pytest.mark.asyncio
+@pytest.mark.timeout(10)
 async def test_get_schedule(aioclient_mock):
     """Test fetching schedule."""
     url = "https://example.com/schedule/schedule/1234?output=xml"

@@ -3,6 +3,9 @@ from unittest.mock import patch
 from homeassistant import config_entries, data_entry_flow
 from custom_components.dieliga.const import DOMAIN
 
+import pytest
+
+@pytest.mark.asyncio
 async def test_flow_user_init(hass):
     """Test the user initiated flow."""
     result = await hass.config_entries.flow.async_init(
@@ -11,6 +14,7 @@ async def test_flow_user_init(hass):
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["step_id"] == "user"
 
+@pytest.mark.asyncio
 async def test_flow_user_success(hass, aioclient_mock):
     """Test successful flow."""
     url = "https://www.ost.volleyball-freizeit.de/schedule/summary/1234?output=xml"
@@ -38,6 +42,7 @@ async def test_flow_user_success(hass, aioclient_mock):
         "team_name": "Team 1",
     }
 
+@pytest.mark.asyncio
 async def test_flow_user_cannot_connect(hass, aioclient_mock):
     """Test flow with connection error."""
     url = "https://www.ost.volleyball-freizeit.de/schedule/summary/1234?output=xml"

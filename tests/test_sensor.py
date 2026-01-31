@@ -3,8 +3,10 @@ from unittest.mock import MagicMock
 
 from homeassistant.core import HomeAssistant
 
+import pytest
 from custom_components.dieliga.sensor import DieligaScoreboardSensor, DieligaScheduleSensor
 
+@pytest.mark.asyncio
 async def test_scoreboard_sensor_attributes(hass: HomeAssistant):
     """Test that the scoreboard sensor has correct attributes and doesn't crash."""
     coordinator = MagicMock()
@@ -29,6 +31,7 @@ async def test_scoreboard_sensor_attributes(hass: HomeAssistant):
     assert attrs["last_update_success"] is True
     # If this had the old last_update_success_time, it would have failed here.
 
+@pytest.mark.asyncio
 async def test_schedule_sensor_attributes(hass: HomeAssistant):
     """Test that the schedule sensor has correct attributes and doesn't crash."""
     coordinator = MagicMock()
