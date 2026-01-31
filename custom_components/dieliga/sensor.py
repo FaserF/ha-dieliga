@@ -79,6 +79,7 @@ class DieligaScoreboardSensor(DieligaCoordinatorEntity, SensorEntity):
             return {}
 
         return {
+            "league": data.get("league"),
             "group": data.get("group"),
             "region": data.get("region"),
             "last_change": data.get("last_change"),

@@ -1,7 +1,11 @@
 """Fixtures for tests."""
 import pytest
 
+import sys
+import os
+
 @pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(hass):
+def enable_custom_integrations(hass):
     """Enable custom integrations."""
-    return True
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    yield
