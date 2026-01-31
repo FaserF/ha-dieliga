@@ -4,6 +4,7 @@ from datetime import datetime
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -27,8 +28,6 @@ async def async_setup_entry(
             DieligaScheduleSensor(coordinator, team_name),
         ]
     )
-
-from homeassistant.helpers.device_registry import DeviceInfo
 
 class DieligaCoordinatorEntity(CoordinatorEntity[DieligaDataUpdateCoordinator]):
     """Base class for Dieliga sensors."""

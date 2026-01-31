@@ -2,9 +2,8 @@
 from unittest.mock import MagicMock
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
+from homeassistant.core import HomeAssistant
 
-from custom_components.dieliga.const import DOMAIN
 from custom_components.dieliga.sensor import DieligaScoreboardSensor, DieligaScheduleSensor
 
 async def test_scoreboard_sensor_attributes(hass: HomeAssistant):
