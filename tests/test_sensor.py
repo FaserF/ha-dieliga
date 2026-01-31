@@ -2,7 +2,6 @@
 from unittest.mock import MagicMock
 
 from homeassistant.core import HomeAssistant
-from homeassistant.core import HomeAssistant
 
 from custom_components.dieliga.sensor import DieligaScoreboardSensor, DieligaScheduleSensor
 
