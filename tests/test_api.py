@@ -1,6 +1,6 @@
 """Tests for DieligaApiClient."""
 import pytest
-import aiohttp
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from custom_components.dieliga.api import DieligaApiClient
 
 SCOREBOARD_XML = """
@@ -40,7 +40,6 @@ SCHEDULE_XML = """
 </results>
 """
 
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(10)

@@ -3,3 +3,5 @@ megalinter-reports/
 github_conf/
 /tests/__pycache__
 test_output.txt
+/custom_components/__pycache__
+/custom_components/dieliga/__pycache__

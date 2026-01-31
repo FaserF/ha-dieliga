@@ -5,7 +5,6 @@ import sys
 import os
 
 @pytest.fixture(autouse=True)
-def enable_custom_integrations(hass):
+def auto_enable_custom_integrations(enable_custom_integrations):
     """Enable custom integrations."""
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     yield
