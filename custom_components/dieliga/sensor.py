@@ -1,313 +1,171 @@
 import logging
-import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import aiohttp
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import DOMAIN, CONF_TEAM_NAME
+from .coordinator import DieligaDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-class DieligaScoreboardSensor(SensorEntity):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the sensor platform."""
+    coordinator: DieligaDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    team_name = config_entry.data.get(CONF_TEAM_NAME)
+
+    async_add_entities(
+        [
+            DieligaScoreboardSensor(coordinator, team_name),
+            DieligaScheduleSensor(coordinator, team_name),
+        ]
+    )
+
+from homeassistant.helpers.device_registry import DeviceInfo
+
+class DieligaCoordinatorEntity(CoordinatorEntity[DieligaDataUpdateCoordinator]):
+    """Base class for Dieliga sensors."""
+
+    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self._team_name = team_name
+        self._attr_attribution = f"Data provided by dieLiga (ID: {coordinator.liga_id})"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.liga_id)},
+            name=f"dieLiga {coordinator.liga_id}",
+            manufacturer="dieLiga",
+            model="League Monitor",
+            configuration_url=f"{coordinator.client._base_url}/schedule/overview/{coordinator.liga_id}",
+        )
+
+class DieligaScoreboardSensor(DieligaCoordinatorEntity, SensorEntity):
     """Sensor to fetch the league table."""
 
-    def __init__(self, base_url, liga_id, team_name=None):
-        self._base_url = str(base_url)
-        self._liga_id = str(liga_id)
-        self._team_name = str(team_name)
-        self._name = f"dieLiga Scoreboard {team_name}" if team_name else f"dieLiga Scoreboard {liga_id}"
-        self._state = None
-        self._previous_state = None
-        self._unique_id = f"dieliga_table_{liga_id}"
-        self._attributes = {}
-        self._icon = "mdi:podium-gold"
-        self._attribution = f"Data provided by API {self._base_url}/schedule/summary/{self._liga_id}?output=xml"
-        self._last_updated = None
+    _attr_icon = "mdi:podium-gold"
 
-    async def async_update(self):
-        """Fetch the latest league scoreboard."""
-        if self._last_updated and datetime.now() - self._last_updated < timedelta(hours=12):
-            _LOGGER.debug("Update skipped; last update was less than 12 hours ago.")
-            return
-
-        url = f"{self._base_url}/schedule/summary/{self._liga_id}?output=xml"
-        try:
-            async with aiohttp.ClientSession() as session:
-                response = await session.get(url)
-                self._last_updated = datetime.now()
-                if response.status == 200:
-                    data = await response.text()
-                    # Parse the XML response
-                    self._parse_xml(data)
-                else:
-                    _LOGGER.error("Failed to fetch league table, status code: %s", response.status)
-        except Exception as e:
-            _LOGGER.error("Error fetching league table: %s", e)
-
-    def _parse_xml(self, xml_data):
-        """Parse the XML data to extract league information."""
-        try:
-            # Parse XML data
-            root = ET.fromstring(xml_data)
-
-            # Extract other relevant attributes
-            self._attributes = {
-                "group": root.find("group").text if root.find("group") is not None else "Unknown",
-                "region": root.find("region").text if root.find("region") is not None else "Unknown",
-                "last_change": root.find("last_change").text if root.find("last_change") is not None else "Unknown"
-            }
-
-            # Extract teams and their information
-            teams = []
-            team_position = None  # To store the position of the team if found
-            for index, team in enumerate(root.findall(".//table/team")):
-                team_info = {
-                    "name": team.find("name").text if team.find("name") is not None else "Unknown",
-                    "points_positive": team.find("points").get("positive") if team.find("points") is not None else "0",
-                    "points_negative": team.find("points").get("negative") if team.find("points") is not None else "0",
-                    "sets_positive": team.find("sets").get("positive") if team.find("sets") is not None else "0",
-                    "sets_negative": team.find("sets").get("negative") if team.find("sets") is not None else "0",
-                    "balls_positive": team.find("balls").get("positive") if team.find("balls") is not None else "0",
-                    "balls_negative": team.find("balls").get("negative") if team.find("balls") is not None else "0",
-                    "games": team.find("games").text if team.find("games") is not None else "0",
-                    "games_won": team.find("games_won").text if team.find("games_won") is not None else "0",
-                }
-                teams.append(team_info)
-
-                # Check if the team matches the user's input team name
-                if self._team_name and team_info["name"].lower() == self._team_name.lower():
-                    team_position = index + 1
-
-            # Set the league name as the state
-            if team_position:
-                self._state = team_position
-                self._unit_of_measurement = "position"
-            else:
-                self._state = root.find("league").text if root.find("league") is not None else "Unknown"
-
-            # Add the teams list as an attribute
-            self._attributes["teams"] = teams
-            self._attributes["last_updated"] = self._last_updated
-            self._attributes["attribution"] = self._attribution
-
-        except Exception as e:
-            _LOGGER.error("Error parsing XML data: %s", e)
+    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+        """Initialize the scoreboard sensor."""
+        super().__init__(coordinator, team_name)
+        self._attr_name = f"dieLiga Scoreboard {team_name}" if team_name else f"dieLiga Scoreboard {coordinator.liga_id}"
+        self._attr_unique_id = f"dieliga_table_{coordinator.liga_id}"
 
     @property
-    def name(self):
-        return self._name
+    def native_value(self) -> str | int | None:
+        """Return the state of the sensor."""
+        data = self.coordinator.data.get("scoreboard")
+        if not data:
+            return None
+
+        if self._team_name:
+            for index, team in enumerate(data.get("teams", [])):
+                if team["name"].lower() == self._team_name.lower():
+                    self._attr_native_unit_of_measurement = "position"
+                    return index + 1
+
+        return data.get("league", "Unknown")
 
     @property
-    def state(self):
-        if self._state is None:
-            return self._previous_state or "Unknown"
-        return self._state
-
-    @property
-    def unique_id(self):
-        return self._unique_id
-
-    @property
-    def extra_state_attributes(self):
+    def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
-        if not self._attributes:
-            return self._previous_attributes
-        return self._attributes
+        data = self.coordinator.data.get("scoreboard")
+        if not data:
+            return {}
 
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return self._icon
+        return {
+            "group": data.get("group"),
+            "region": data.get("region"),
+            "last_change": data.get("last_change"),
+            "teams": data.get("teams"),
+            "last_update_success": self.coordinator.last_update_success,
+        }
 
-    async def async_added_to_hass(self):
-        """Called when the sensor is added to Home Assistant."""
-        # Ensure the previous state and attributes are retained across restarts
-        self._previous_state = self._state
-        self._previous_attributes = self._attributes
-
-class DieligaScheduleSensor(SensorEntity):
+class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
     """Sensor to fetch the match schedule."""
 
-    def __init__(self, base_url, liga_id, team_name=None):
-        self._base_url = str(base_url)
-        self._liga_id = str(liga_id)
-        self._team_name = str(team_name)
-        self._name = f"dieLiga Schedule {team_name}" if team_name else f"dieLiga Schedule {liga_id}"
-        self._state = None
-        self._previous_state = None
-        self._unique_id = f"dieliga_schedule_{liga_id}"
-        self._attributes = {}
-        self._icon = "mdi:calendar-month-outline"
-        self._attribution = f"Data provided by API {self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
-        self._last_updated = None
+    _attr_icon = "mdi:calendar-month-outline"
 
-    async def async_update(self):
-        """Fetch the latest match schedule."""
-        if self._last_updated and datetime.now() - self._last_updated < timedelta(hours=12):
-            _LOGGER.debug("Update skipped; last update was less than 12 hours ago.")
-            return
-        url = f"{self._base_url}/schedule/schedule/{self._liga_id}?output=xml"
-        try:
-            async with aiohttp.ClientSession() as session:
-                response = await session.get(url)
-                self._last_updated = datetime.now()
-                if response.status == 200:
-                    data = await response.text()
-                    # Parse the XML response for the match schedule
-                    self._parse_xml(data)
-                else:
-                    _LOGGER.error("Failed to fetch match schedule, status code: %s", response.status)
-        except Exception as e:
-            _LOGGER.error("Error fetching match schedule: %s", e)
-
-    def _parse_xml(self, xml_data):
-        """Parse the XML data to extract match schedule."""
-        try:
-            # Parse XML data
-            root = ET.fromstring(xml_data)
-
-            # Extract other relevant attributes
-            self._attributes = {
-                "group": root.find("group").text if root.find("group") is not None else "Unknown",
-                "region": root.find("region").text if root.find("region") is not None else "Unknown",
-            }
-
-            if self._team_name:
-                _LOGGER.debug("Filtering for team_name: %s", self._team_name)
-            # Extract match details
-            games = []
-            completed_games = 0
-            total_games = 0
-            for day in root.findall(".//day_of_play"):
-                for game in day.findall("game"):
-                    team_a_name = game.find("team_a").get("name") if game.find("team_a") is not None else "Unknown"
-                    team_b_name = game.find("team_b").get("name") if game.find("team_b") is not None else "Unknown"
-
-                    # Only add the game if the team_name is found in either team_a or team_b
-                    if self._team_name:
-                        if self._team_name.strip().lower() == team_a_name.strip().lower() or self._team_name.strip().lower() == team_b_name.strip().lower():
-                            _LOGGER.debug("Keeping game: %s vs %s", team_a_name, team_b_name)
-                            game_info = {
-                                "game_number": game.find("gamenr").text if game.find("gamenr") is not None else "Unknown",
-                                "date": game.find("date").text if game.find("date") is not None else "Unknown",
-                                "new_date": game.find("new_date").text if game.find("new_date") is not None else "Unknown",
-                                "time": game.find("time").text if game.find("time") is not None else "Unknown",
-                                "team_a_name": team_a_name,
-                                "team_b_name": team_b_name,
-                                "team_a_points": game.find("team_a").get("points") if game.find("team_a") is not None else "0",
-                                "team_b_points": game.find("team_b").get("points") if game.find("team_b") is not None else "0",
-                                "team_a_sets": game.find("team_a").get("sets") if game.find("team_a") is not None else "0",
-                                "team_b_sets": game.find("team_b").get("sets") if game.find("team_b") is not None else "0",
-                                "team_a_balls": game.find("team_a").get("balls") if game.find("team_a") is not None else "0",
-                                "team_b_balls": game.find("team_b").get("balls") if game.find("team_b") is not None else "0",
-                                "state": game.find("state").text if game.find("state") is not None else "Unknown",
-                            }
-                            games.append(game_info)
-
-                            game_date = game.find("new_date").text if game.find("new_date") is not None and game.find("new_date").text not in ("-", "") else (game.find("date").text if game.find("date") is not None else "Unknown")
-                            if game_date != "Unknown":
-                                try:
-                                    game_date = datetime.strptime(game_date, "%Y-%m-%d")
-                                    if game_date < datetime.now():
-                                        completed_games += 1
-                                except ValueError as e:
-                                    _LOGGER.warning("Invalid date format for game %s: %s", game.find("gamenr").text, game_date)
-                            else:
-                                _LOGGER.debug("Game date is unknown for game %s", game.find("gamenr").text)
-
-                            total_games += 1
-
-                        else:
-                            _LOGGER.debug("Skipping game: %s vs %s", team_a_name, team_b_name)
-                    else:
-                        # If no team_name is provided, include all games
-                        _LOGGER.debug("Processing game: %s vs %s", team_a_name, team_b_name)
-                        game_info = {
-                            "game_number": game.find("gamenr").text if game.find("gamenr") is not None else "Unknown",
-                            "date": game.find("date").text if game.find("date") is not None else "Unknown",
-                            "new_date": game.find("new_date").text if game.find("new_date") is not None else "Unknown",
-                            "time": game.find("time").text if game.find("time") is not None else "Unknown",
-                            "team_a_name": team_a_name,
-                            "team_b_name": team_b_name,
-                            "team_a_points": game.find("team_a").get("points") if game.find("team_a") is not None else "0",
-                            "team_b_points": game.find("team_b").get("points") if game.find("team_b") is not None else "0",
-                            "team_a_sets": game.find("team_a").get("sets") if game.find("team_a") is not None else "0",
-                            "team_b_sets": game.find("team_b").get("sets") if game.find("team_b") is not None else "0",
-                            "team_a_balls": game.find("team_a").get("balls") if game.find("team_a") is not None else "0",
-                            "team_b_balls": game.find("team_b").get("balls") if game.find("team_b") is not None else "0",
-                            "state": game.find("state").text if game.find("state") is not None else "Unknown",
-                        }
-                        games.append(game_info)
-
-                        game_date = game.find("new_date").text if game.find("new_date") is not None and game.find("new_date").text not in ("-", "") else (game.find("date").text if game.find("date") is not None else "Unknown")
-                        if game_date != "Unknown":
-                            try:
-                                game_date = datetime.strptime(game_date, "%Y-%m-%d")
-                                if game_date < datetime.now():
-                                    completed_games += 1
-                            except ValueError as e:
-                                _LOGGER.warning("Invalid date format for game %s: %s", game.find("gamenr").text, game_date)
-                        else:
-                            _LOGGER.debug("Game date is unknown for game %s", game.find("gamenr").text)
-
-                        total_games += 1
-
-            # Add the games list as an attribute
-            self._attributes["games"] = games
-            self._attributes["total_games"] = total_games
-            self._attributes["completed_games"] = completed_games
-            self._attributes["last_updated"] = self._last_updated
-            self._attributes["attribution"] = self._attribution
-
-            # If there are games, calculate the completion percentage
-            if total_games > 0:
-                percentage_completed = (completed_games / total_games) * 100
-                _LOGGER.debug("Detected total game count: %s where %s are already completed in the past. Using this to calculate the percentage.", total_games, completed_games)
-                self._state = f"{percentage_completed:.0f}"
-            else:
-                _LOGGER.debug("No games to calculate completion percentage.")
-                # Set the league name as the state
-                self._state = root.find("league").text if root.find("league") is not None else "Unknown"
-
-        except Exception as e:
-            _LOGGER.error("Error parsing XML data: %s", e)
+    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+        """Initialize the schedule sensor."""
+        super().__init__(coordinator, team_name)
+        self._attr_name = f"dieLiga Schedule {team_name}" if team_name else f"dieLiga Schedule {coordinator.liga_id}"
+        self._attr_unique_id = f"dieliga_schedule_{coordinator.liga_id}"
 
     @property
-    def name(self):
-        return self._name
+    def native_value(self) -> str | None:
+        """Return the state of the sensor."""
+        data = self.coordinator.data.get("schedule")
+        if not data:
+            return None
+
+        total_games = 0
+        completed_games = 0
+
+        if self._team_name:
+            for game in data.get("games", []):
+                if (self._team_name.lower() == game["team_a_name"].lower() or
+                    self._team_name.lower() == game["team_b_name"].lower()):
+                    total_games += 1
+                    # We check if game is completed based on date (simpler than XML state sometimes)
+                    # But api.py already calculates completed_games if we want.
+                    # However here we are filtering by team.
+                    game_date_str = game["new_date"] if game["new_date"] not in ("-", "", "Unknown", "?") else game["date"]
+                    if game_date_str not in ("-", "", "Unknown", "?"):
+                        try:
+                            game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
+                            if game_date < datetime.now():
+                                completed_games += 1
+                        except ValueError:
+                            pass
+        else:
+            total_games = data.get("total_games", 0)
+            completed_games = data.get("completed_games", 0)
+
+        if total_games > 0:
+            return f"{(completed_games / total_games) * 100:.0f}"
+
+        # If no games for this team, return league name or Unknown
+        scoreboard_data = self.coordinator.data.get("scoreboard")
+        return scoreboard_data.get("league") if scoreboard_data else "Unknown"
 
     @property
-    def state(self):
-        if self._state is None:
-            return self._previous_state or "Unknown"
-        return self._state
-
-    @property
-    def unique_id(self):
-        return self._unique_id
-
-    @property
-    def extra_state_attributes(self):
+    def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
-        if not self._attributes:
-            return self._previous_attributes
-        return self._attributes
+        data = self.coordinator.data.get("schedule")
+        if not data:
+            return {}
 
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return self._icon
+        games = data.get("games", [])
+        if self._team_name:
+            games = [
+                g for g in games
+                if self._team_name.lower() == g["team_a_name"].lower() or
+                   self._team_name.lower() == g["team_b_name"].lower()
+            ]
 
-    async def async_added_to_hass(self):
-        """Called when the sensor is added to Home Assistant."""
-        # Ensure the previous state and attributes are retained across restarts
-        self._previous_state = self._state
-        self._previous_attributes = self._attributes
+        return {
+            "group": data.get("group"),
+            "region": data.get("region"),
+            "games": games,
+            "total_games": len(games) if self._team_name else data.get("total_games"),
+            "completed_games": sum(1 for g in games if self._is_completed(g)) if self._team_name else data.get("completed_games"),
+            "last_update_success": self.coordinator.last_update_success,
+        }
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up the sensor platform."""
-    base_url = config_entry.data.get("base_url")
-    liga_id = str(config_entry.data.get("liga_id"))
-    team_name = config_entry.data.get("team_name")
-
-    _LOGGER.debug("Setting up dieLigaSensors for base url: %s with liga id: %s", base_url, liga_id)
-    async_add_entities([DieligaScoreboardSensor(base_url, liga_id, team_name), DieligaScheduleSensor(base_url, liga_id, team_name)])
+    def _is_completed(self, game: dict) -> bool:
+        """Check if a game is completed."""
+        game_date_str = game["new_date"] if game["new_date"] not in ("-", "", "Unknown", "?") else game["date"]
+        if game_date_str not in ("-", "", "Unknown", "?"):
+            try:
+                game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
+                return game_date < datetime.now()
+            except ValueError:
+                pass
+        return False

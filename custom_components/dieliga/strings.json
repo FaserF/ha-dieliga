@@ -13,5 +13,16 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure dieLiga",
+        "data": {
+          "team_name": "Team Name",
+          "refresh_time": "Refresh interval (hours)"
+        }
+      }
+    }
   }
 }
