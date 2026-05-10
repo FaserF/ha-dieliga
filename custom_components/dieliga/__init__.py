@@ -1,4 +1,5 @@
 import logging
+import importlib
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -37,6 +38,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Pre-import diagnostics to avoid blocking call warning during discovery
+    # This is done in the executor to avoid blocking the event loop
+    try:
+        await hass.async_add_import_executor_job(
+            importlib.import_module, f"custom_components.{DOMAIN}.diagnostics"
+        )
+    except Exception:  # pylint: disable=broad-except
+        _LOGGER.debug("Diagnostics platform not found or failed to import")
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
