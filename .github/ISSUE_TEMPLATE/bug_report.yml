@@ -50,7 +50,7 @@ body:
     id: league_id_url
     attributes:
       label: League ID / URL
-      description: Which league are you tracking? Paste the die-liga.de URL or league ID (if applicable).
+      description: Which league are you tracking? Paste the die-liga.de URL or league ID (if applicable). (Do NOT share sensitive passwords, credentials, or public API keys. Use example.com or 192.168.1.1 instead.)
       placeholder: e.g. https://www.die-liga.de/... or league ID 12345
     validations:
       required: false
