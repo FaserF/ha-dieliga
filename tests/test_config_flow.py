@@ -1,9 +1,11 @@
 """Tests for dieLiga config flow."""
+
 from unittest.mock import patch
 from homeassistant import config_entries, data_entry_flow
 from custom_components.dieliga.const import DOMAIN
 
 import pytest
+
 
 @pytest.mark.asyncio
 async def test_flow_user_init(hass):
@@ -13,6 +15,7 @@ async def test_flow_user_init(hass):
     )
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["step_id"] == "user"
+
 
 @pytest.mark.asyncio
 async def test_flow_user_success(hass, aioclient_mock):
@@ -41,6 +44,7 @@ async def test_flow_user_success(hass, aioclient_mock):
         "liga_id": 1234,
         "team_name": "Team 1",
     }
+
 
 @pytest.mark.asyncio
 async def test_flow_user_cannot_connect(hass, aioclient_mock):

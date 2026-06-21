@@ -1,10 +1,15 @@
 """Tests for the dieLiga sensor platform."""
+
 from unittest.mock import MagicMock
 
 from homeassistant.core import HomeAssistant
 
 import pytest
-from custom_components.dieliga.sensor import DieligaScoreboardSensor, DieligaScheduleSensor
+from custom_components.dieliga.sensor import (
+    DieligaScoreboardSensor,
+    DieligaScheduleSensor,
+)
+
 
 @pytest.mark.asyncio
 async def test_scoreboard_sensor_attributes(hass: HomeAssistant):
@@ -31,6 +36,7 @@ async def test_scoreboard_sensor_attributes(hass: HomeAssistant):
     assert attrs["last_update_success"] is True
     # If this had the old last_update_success_time, it would have failed here.
 
+
 @pytest.mark.asyncio
 async def test_schedule_sensor_attributes(hass: HomeAssistant):
     """Test that the schedule sensor has correct attributes and doesn't crash."""
@@ -49,9 +55,9 @@ async def test_schedule_sensor_attributes(hass: HomeAssistant):
                     "new_date": "",
                     "time": "10:00",
                     "game_number": "1",
-                    "state": "Completed"
+                    "state": "Completed",
                 }
-            ]
+            ],
         }
     }
     coordinator.last_update_success = True
@@ -62,5 +68,5 @@ async def test_schedule_sensor_attributes(hass: HomeAssistant):
     # Check attributes
     attrs = sensor.extra_state_attributes
     assert attrs["group"] == "Group A"
-    assert attrs["total_games"] == 1 # Filtered by team
+    assert attrs["total_games"] == 1  # Filtered by team
     assert attrs["last_update_success"] is True

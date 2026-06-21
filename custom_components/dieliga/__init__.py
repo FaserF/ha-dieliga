@@ -14,6 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor", "binary_sensor", "calendar"]
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up dieLiga from a config entry."""
     _LOGGER.debug("Setting up dieLiga entry with entry_id: %s", entry.entry_id)
@@ -28,10 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = DieligaApiClient(session, base_url)
 
     coordinator = DieligaDataUpdateCoordinator(
-        hass,
-        client,
-        liga_id,
-        update_interval=timedelta(hours=refresh_time)
+        hass, client, liga_id, update_interval=timedelta(hours=refresh_time)
     )
 
     await coordinator.async_config_entry_first_refresh()
@@ -55,6 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return True
 
+
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Update options."""
     coordinator: DieligaDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
@@ -62,6 +61,7 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
     _LOGGER.debug("Updating refresh interval to %s hours", refresh_time)
     coordinator.update_interval = timedelta(hours=refresh_time)
     await coordinator.async_request_refresh()
+
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Migrate old entry."""
@@ -76,6 +76,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
 
     _LOGGER.info("Migration to version %s successful", config_entry.version)
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload dieLiga config entry."""

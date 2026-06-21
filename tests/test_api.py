@@ -1,4 +1,5 @@
 """Tests for DieligaApiClient."""
+
 import pytest
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from custom_components.dieliga.api import DieligaApiClient
@@ -55,6 +56,7 @@ async def test_get_scoreboard(hass, aioclient_mock):
     assert data["league"] == "Test League"
     assert len(data["teams"]) == 1
     assert data["teams"][0]["name"] == "Team 1"
+
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(10)

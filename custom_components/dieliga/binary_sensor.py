@@ -1,4 +1,5 @@
 """Binary sensor platform for dieLiga."""
+
 import logging
 from datetime import datetime
 
@@ -16,6 +17,7 @@ from .sensor import DieligaCoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -28,6 +30,7 @@ async def async_setup_entry(
     if team_name:
         async_add_entities([DieligaMatchTodayBinarySensor(coordinator, team_name)])
 
+
 class DieligaMatchTodayBinarySensor(DieligaCoordinatorEntity, BinarySensorEntity):
     """Binary sensor to indicate if a match is scheduled for today."""
 
@@ -35,7 +38,9 @@ class DieligaMatchTodayBinarySensor(DieligaCoordinatorEntity, BinarySensorEntity
     _attr_icon = "mdi:soccer"
     _attr_entity_registry_enabled_default = False
 
-    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str) -> None:
+    def __init__(
+        self, coordinator: DieligaDataUpdateCoordinator, team_name: str
+    ) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator, team_name)
         self._attr_name = f"dieLiga Match Today {team_name}"
@@ -51,10 +56,15 @@ class DieligaMatchTodayBinarySensor(DieligaCoordinatorEntity, BinarySensorEntity
         today_str = datetime.now().strftime("%Y-%m-%d")
 
         for game in data.get("games", []):
-            if (self._team_name.lower() == game["team_a_name"].lower() or
-                self._team_name.lower() == game["team_b_name"].lower()):
-
-                game_date_str = game["new_date"] if game["new_date"] not in ("-", "", "Unknown", "?") else game["date"]
+            if (
+                self._team_name.lower() == game["team_a_name"].lower()
+                or self._team_name.lower() == game["team_b_name"].lower()
+            ):
+                game_date_str = (
+                    game["new_date"]
+                    if game["new_date"] not in ("-", "", "Unknown", "?")
+                    else game["date"]
+                )
                 if game_date_str == today_str:
                     return True
 

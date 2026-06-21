@@ -15,6 +15,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for dieliga integration."""
 
@@ -47,7 +48,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_URL, default="https://www.ost.volleyball-freizeit.de"): str,
+                vol.Required(
+                    CONF_URL, default="https://www.ost.volleyball-freizeit.de"
+                ): str,
                 vol.Required(CONF_LIGA_ID, default=1234): int,
                 vol.Optional(CONF_TEAM_NAME): str,
             }
@@ -59,7 +62,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
         """Create the options flow."""
         return OptionsFlowHandler(config_entry)
 
@@ -78,11 +83,16 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         options = self.config_entry.options
         data = self.config_entry.data
-        options_schema = vol.Schema({
-            vol.Optional(CONF_TEAM_NAME, default=options.get(CONF_TEAM_NAME, data.get(CONF_TEAM_NAME, ""))): str,
-            vol.Optional(CONF_REFRESH_TIME, default=options.get(CONF_REFRESH_TIME, 12)): int,
-        })
-
-        return self.async_show_form(
-            step_id="init", data_schema=options_schema
+        options_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_TEAM_NAME,
+                    default=options.get(CONF_TEAM_NAME, data.get(CONF_TEAM_NAME, "")),
+                ): str,
+                vol.Optional(
+                    CONF_REFRESH_TIME, default=options.get(CONF_REFRESH_TIME, 12)
+                ): int,
+            }
         )
+
+        return self.async_show_form(step_id="init", data_schema=options_schema)

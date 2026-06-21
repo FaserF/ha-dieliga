@@ -1,4 +1,5 @@
 """Coordinator for dieLiga integration."""
+
 from datetime import timedelta
 import logging
 
@@ -10,10 +11,17 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class DieligaDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    def __init__(self, hass: HomeAssistant, client: DieligaApiClient, liga_id: str, update_interval=timedelta(hours=12)) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: DieligaApiClient,
+        liga_id: str,
+        update_interval=timedelta(hours=12),
+    ) -> None:
         """Initialize."""
         self.client = client
         self.liga_id = liga_id
@@ -29,9 +37,6 @@ class DieligaDataUpdateCoordinator(DataUpdateCoordinator):
         try:
             scoreboard = await self.client.async_get_scoreboard(self.liga_id)
             schedule = await self.client.async_get_schedule(self.liga_id)
-            return {
-                "scoreboard": scoreboard,
-                "schedule": schedule
-            }
+            return {"scoreboard": scoreboard, "schedule": schedule}
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err

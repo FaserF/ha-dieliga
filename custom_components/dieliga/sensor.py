@@ -13,6 +13,7 @@ from .coordinator import DieligaDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -29,10 +30,13 @@ async def async_setup_entry(
         ]
     )
 
+
 class DieligaCoordinatorEntity(CoordinatorEntity[DieligaDataUpdateCoordinator]):
     """Base class for Dieliga sensors."""
 
-    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+    def __init__(
+        self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None
+    ) -> None:
         """Initialize the entity."""
         super().__init__(coordinator)
         self._team_name = team_name
@@ -45,15 +49,22 @@ class DieligaCoordinatorEntity(CoordinatorEntity[DieligaDataUpdateCoordinator]):
             configuration_url=f"{coordinator.client._base_url}/schedule/overview/{coordinator.liga_id}",
         )
 
+
 class DieligaScoreboardSensor(DieligaCoordinatorEntity, SensorEntity):
     """Sensor to fetch the league table."""
 
     _attr_icon = "mdi:podium-gold"
 
-    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+    def __init__(
+        self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None
+    ) -> None:
         """Initialize the scoreboard sensor."""
         super().__init__(coordinator, team_name)
-        self._attr_name = f"dieLiga Scoreboard {team_name}" if team_name else f"dieLiga Scoreboard {coordinator.liga_id}"
+        self._attr_name = (
+            f"dieLiga Scoreboard {team_name}"
+            if team_name
+            else f"dieLiga Scoreboard {coordinator.liga_id}"
+        )
         self._attr_unique_id = f"dieliga_table_{coordinator.liga_id}"
 
     @property
@@ -87,15 +98,22 @@ class DieligaScoreboardSensor(DieligaCoordinatorEntity, SensorEntity):
             "last_update_success": self.coordinator.last_update_success,
         }
 
+
 class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
     """Sensor to fetch the match schedule."""
 
     _attr_icon = "mdi:calendar-month-outline"
 
-    def __init__(self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None) -> None:
+    def __init__(
+        self, coordinator: DieligaDataUpdateCoordinator, team_name: str | None = None
+    ) -> None:
         """Initialize the schedule sensor."""
         super().__init__(coordinator, team_name)
-        self._attr_name = f"dieLiga Schedule {team_name}" if team_name else f"dieLiga Schedule {coordinator.liga_id}"
+        self._attr_name = (
+            f"dieLiga Schedule {team_name}"
+            if team_name
+            else f"dieLiga Schedule {coordinator.liga_id}"
+        )
         self._attr_unique_id = f"dieliga_schedule_{coordinator.liga_id}"
 
     @property
@@ -110,13 +128,19 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
 
         if self._team_name:
             for game in data.get("games", []):
-                if (self._team_name.lower() == game["team_a_name"].lower() or
-                    self._team_name.lower() == game["team_b_name"].lower()):
+                if (
+                    self._team_name.lower() == game["team_a_name"].lower()
+                    or self._team_name.lower() == game["team_b_name"].lower()
+                ):
                     total_games += 1
                     # We check if game is completed based on date (simpler than XML state sometimes)
                     # But api.py already calculates completed_games if we want.
                     # However here we are filtering by team.
-                    game_date_str = game["new_date"] if game["new_date"] not in ("-", "", "Unknown", "?") else game["date"]
+                    game_date_str = (
+                        game["new_date"]
+                        if game["new_date"] not in ("-", "", "Unknown", "?")
+                        else game["date"]
+                    )
                     if game_date_str not in ("-", "", "Unknown", "?"):
                         try:
                             game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
@@ -145,9 +169,10 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
         games = data.get("games", [])
         if self._team_name:
             games = [
-                g for g in games
-                if self._team_name.lower() == g["team_a_name"].lower() or
-                   self._team_name.lower() == g["team_b_name"].lower()
+                g
+                for g in games
+                if self._team_name.lower() == g["team_a_name"].lower()
+                or self._team_name.lower() == g["team_b_name"].lower()
             ]
 
         return {
@@ -155,13 +180,19 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
             "region": data.get("region"),
             "games": games,
             "total_games": len(games) if self._team_name else data.get("total_games"),
-            "completed_games": sum(1 for g in games if self._is_completed(g)) if self._team_name else data.get("completed_games"),
+            "completed_games": sum(1 for g in games if self._is_completed(g))
+            if self._team_name
+            else data.get("completed_games"),
             "last_update_success": self.coordinator.last_update_success,
         }
 
     def _is_completed(self, game: dict) -> bool:
         """Check if a game is completed."""
-        game_date_str = game["new_date"] if game["new_date"] not in ("-", "", "Unknown", "?") else game["date"]
+        game_date_str = (
+            game["new_date"]
+            if game["new_date"] not in ("-", "", "Unknown", "?")
+            else game["date"]
+        )
         if game_date_str not in ("-", "", "Unknown", "?"):
             try:
                 game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
