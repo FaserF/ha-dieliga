@@ -203,9 +203,7 @@ jobs:
 
       - name: 📦 Zip Component
         run: |
-          cd custom_components
-          zip -r ../dieliga.zip dieliga
-          cd ..
+          zip -r dieliga.zip custom_components/dieliga
 
       - name: Download Release Body Artifact
         uses: actions/download-artifact@v8
