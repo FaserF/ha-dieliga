@@ -7,6 +7,7 @@ from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, CONF_TEAM_NAME
 from .coordinator import DieligaDataUpdateCoordinator
@@ -94,11 +95,12 @@ class DieligaCalendarEntity(DieligaCoordinatorEntity, CalendarEntity):
 
             try:
                 # dieLiga times are often just HH:MM
-                start_dt = datetime.strptime(
+                start_dt_naive = datetime.strptime(
                     f"{game_date_str} {game_time_str}", "%Y-%m-%d %H:%M"
                 )
+                start_dt = dt_util.as_local(start_dt_naive)
                 # Assume 2 hours duration for a match
-                end_dt = start_dt + timedelta(hours=2)
+                end_dt = dt_util.as_local(start_dt_naive + timedelta(hours=2))
 
                 event = CalendarEvent(
                     summary=f"{game['team_a_name']} vs {game['team_b_name']}",

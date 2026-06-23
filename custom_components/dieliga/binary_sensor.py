@@ -50,15 +50,20 @@ class DieligaMatchTodayBinarySensor(DieligaCoordinatorEntity, BinarySensorEntity
     def is_on(self) -> bool:
         """Return true if a match is scheduled for today."""
         data = self.coordinator.data.get("schedule")
-        if not data:
+        if not data or not self._team_name:
             return False
 
         today_str = datetime.now().strftime("%Y-%m-%d")
+        team_name_lower = self._team_name.lower()
 
         for game in data.get("games", []):
+            game_team_a = game.get("team_a_name")
+            game_team_b = game.get("team_b_name")
+            if not game_team_a or not game_team_b:
+                continue
             if (
-                self._team_name.lower() == game["team_a_name"].lower()
-                or self._team_name.lower() == game["team_b_name"].lower()
+                team_name_lower == game_team_a.lower()
+                or team_name_lower == game_team_b.lower()
             ):
                 game_date_str = (
                     game["new_date"]
