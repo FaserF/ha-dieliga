@@ -12,6 +12,7 @@ The `dieliga` sensor provides information about your sports league from [DieLiga
 ## Installation 🛠️
 
 ### 1. Using HACS (Recommended)
+[![Downloads (Current release)](https://img.shields.io/github/downloads/FaserF/ha-dieliga/latest/integration.zip?label=Downloads%20(Current%20release)&style=flat-square)](https://github.com/FaserF/ha-dieliga/releases)
 
 1.  Open **HACS** in your Home Assistant instance.
 2.  Click the three dots in the top right corner and select **Custom repositories**.
