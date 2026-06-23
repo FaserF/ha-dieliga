@@ -14,10 +14,10 @@ async def test_calendar_events(hass: HomeAssistant):
     """Test calendar entity methods and attributes."""
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
-    
+
     start_date = dt_util.as_local(datetime(2026, 1, 1, 10, 0))
     end_date = start_date + timedelta(hours=2)
-    
+
     coordinator.data = {
         "scoreboard": {
             "region": "Test Region",
@@ -41,26 +41,26 @@ async def test_calendar_events(hass: HomeAssistant):
                     "time": "14:00",
                     "game_number": "2",
                     "state": "Scheduled",
-                }
+                },
             ]
-        }
+        },
     }
-    
+
     calendar = DieligaCalendarEntity(coordinator, team_name="Team 1")
-    
+
     # Get events
     events = await calendar.async_get_events(
         hass,
         dt_util.as_local(datetime(2026, 1, 1, 0, 0)),
-        dt_util.as_local(datetime(2026, 1, 1, 23, 59))
+        dt_util.as_local(datetime(2026, 1, 1, 23, 59)),
     )
-    
+
     assert len(events) == 1
     event = events[0]
     assert event.summary == "Team 1 vs Team 2"
     assert event.start == start_date
     assert event.end == end_date
     assert event.location == "Test Region"
-    
+
     assert calendar.name == "dieLiga Calendar Team 1"
     assert calendar.unique_id == "dieliga_calendar_1234"

@@ -58,7 +58,7 @@ class DieligaApiClient:
             points_el = team.find("points")
             sets_el = team.find("sets")
             balls_el = team.find("balls")
-            
+
             data["teams"].append(
                 {
                     "name": team.findtext("name", "Unknown"),
@@ -105,7 +105,7 @@ class DieligaApiClient:
             for game in day.findall("game"):
                 team_a = game.find("team_a")
                 team_b = game.find("team_b")
-                
+
                 game_info = {
                     "game_number": game.findtext("gamenr", "Unknown"),
                     "date": game.findtext("date", "Unknown"),

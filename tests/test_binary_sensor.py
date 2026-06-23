@@ -13,7 +13,7 @@ async def test_match_today_binary_sensor_is_on(hass: HomeAssistant):
     """Test that the binary sensor is ON if a match is scheduled for today."""
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
-    
+
     today_str = datetime.now().strftime("%Y-%m-%d")
     coordinator.data = {
         "schedule": {
@@ -30,10 +30,10 @@ async def test_match_today_binary_sensor_is_on(hass: HomeAssistant):
             ]
         }
     }
-    
+
     sensor = DieligaMatchTodayBinarySensor(coordinator, team_name="Team 1")
     assert sensor.is_on is True
-    
+
     sensor_b = DieligaMatchTodayBinarySensor(coordinator, team_name="Team 2")
     assert sensor_b.is_on is True
 
@@ -46,7 +46,7 @@ async def test_match_today_binary_sensor_new_date(hass: HomeAssistant):
     """Test that the binary sensor checks new_date field correctly."""
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
-    
+
     today_str = datetime.now().strftime("%Y-%m-%d")
     coordinator.data = {
         "schedule": {
@@ -63,6 +63,6 @@ async def test_match_today_binary_sensor_new_date(hass: HomeAssistant):
             ]
         }
     }
-    
+
     sensor = DieligaMatchTodayBinarySensor(coordinator, team_name="Team 1")
     assert sensor.is_on is True
