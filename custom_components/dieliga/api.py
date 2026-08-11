@@ -151,7 +151,9 @@ class DieligaApiClient:
                 if game_date_str not in ("-", "", "Unknown", "?"):
                     try:
                         # Dates in XML tend to be YYYY-MM-DD
-                        game_date = dt_util.as_local(datetime.strptime(game_date_str, "%Y-%m-%d"))
+                        game_date = dt_util.as_local(
+                            datetime.strptime(game_date_str, "%Y-%m-%d")  # noqa: DTZ007
+                        )
                         if game_date < now:
                             data["completed_games"] += 1
                     except ValueError:

@@ -146,7 +146,7 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
                     if game_date_str not in ("-", "", "Unknown", "?"):
                         try:
                             game_date = dt_util.as_local(
-                                datetime.strptime(game_date_str, "%Y-%m-%d")
+                                datetime.strptime(game_date_str, "%Y-%m-%d")  # noqa: DTZ007
                             )
                             if game_date < dt_util.now():
                                 completed_games += 1
@@ -200,7 +200,7 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
         if game_date_str not in ("-", "", "Unknown", "?"):
             try:
                 game_date = dt_util.as_local(
-                    datetime.strptime(game_date_str, "%Y-%m-%d")
+                    datetime.strptime(game_date_str, "%Y-%m-%d")  # noqa: DTZ007
                 )
                 return game_date < dt_util.now()
             except ValueError:

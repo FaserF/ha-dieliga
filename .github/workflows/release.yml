@@ -218,7 +218,7 @@ jobs:
 
       - name: 📦 Zip Component
         run: |
-          zip -r dieliga.zip custom_components/dieliga
+          zip -r ha-dieliga.zip custom_components/dieliga
 
       - name: Download Release Body Artifact
         uses: actions/download-artifact@v8
@@ -253,7 +253,7 @@ jobs:
               -F prerelease=$( [ "$IS_PRERELEASE" = "true" ] && echo "true" || echo "false" )
               
             # Upload the assets to the published release
-            gh release upload "$TAG" dieliga.zip --clobber
+            gh release upload "$TAG" ha-dieliga.zip --clobber
           else
             # Create a brand new release if no draft exists
             gh release create "$TAG" \
@@ -261,7 +261,7 @@ jobs:
               --title "Release $VERSION" \
               --notes-file "release_body.md" \
               $prerelease_arg \
-              dieliga.zip
+              ha-dieliga.zip
           fi
  
       - name: Post-Release Dev Bump
