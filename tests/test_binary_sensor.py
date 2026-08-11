@@ -1,11 +1,11 @@
 """Tests for the dieLiga binary sensor platform."""
 
 from unittest.mock import MagicMock
-from datetime import datetime
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
-import pytest
+
 from custom_components.dieliga.binary_sensor import DieligaMatchTodayBinarySensor
 
 

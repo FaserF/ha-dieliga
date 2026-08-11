@@ -7,10 +7,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, CONF_TEAM_NAME
+from .const import CONF_TEAM_NAME, DOMAIN
 from .coordinator import DieligaDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
-import logging
 import importlib
+import logging
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -7,8 +7,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import DieligaApiClient
+from .const import CONF_LIGA_ID, CONF_REFRESH_TIME, CONF_URL, DOMAIN
 from .coordinator import DieligaDataUpdateCoordinator
-from .const import DOMAIN, CONF_URL, CONF_LIGA_ID, CONF_REFRESH_TIME
 
 _LOGGER = logging.getLogger(__name__)
 

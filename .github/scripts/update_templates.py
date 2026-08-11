@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
+import json
 import os
 import re
 import sys
 import urllib.request
-import json
 
 
 def get_latest_ha_version():
@@ -29,7 +28,13 @@ def get_service_version(repo_name):
             with urllib.request.urlopen(req, timeout=5) as response:
                 data = json.loads(response.read().decode("utf-8"))
                 return data["latest"][0]
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, IndexError, OSError) as e:
+        except (
+            urllib.error.URLError,
+            json.JSONDecodeError,
+            KeyError,
+            IndexError,
+            OSError,
+        ) as e:
             print(f"Error fetching OpenWrt version: {e}")
             return "25.12.4"
 
@@ -211,7 +216,7 @@ if __name__ == "__main__":
     template_dir = ".github/ISSUE_TEMPLATE"
     if os.path.exists(template_dir):
         for filename in os.listdir(template_dir):
-            if filename.endswith(".yml") or filename.endswith(".yaml"):
+            if filename.endswith((".yml", ".yaml")):
                 path = os.path.join(template_dir, filename)
                 changed = clean_and_update_template(
                     path, version, ha_version, repo_name

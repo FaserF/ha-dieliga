@@ -2,12 +2,12 @@
 
 from unittest.mock import MagicMock
 
+import pytest
 from homeassistant.core import HomeAssistant
 
-import pytest
 from custom_components.dieliga.sensor import (
-    DieligaScoreboardSensor,
     DieligaScheduleSensor,
+    DieligaScoreboardSensor,
 )
 
 

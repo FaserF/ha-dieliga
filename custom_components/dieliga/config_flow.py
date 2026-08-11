@@ -1,4 +1,5 @@
 import logging
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -7,10 +8,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import DieligaApiClient
 from .const import (
     CONF_LIGA_ID,
+    CONF_REFRESH_TIME,
     CONF_TEAM_NAME,
     CONF_URL,
     DOMAIN,
-    CONF_REFRESH_TIME,
 )
 
 _LOGGER = logging.getLogger(__name__)

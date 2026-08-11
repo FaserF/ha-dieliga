@@ -1,9 +1,9 @@
 """API Client for dieLiga."""
 
 import logging
-from typing import Any
 import xml.etree.ElementTree as ET
 from datetime import datetime
+from typing import Any
 
 import aiohttp
 from homeassistant.util import dt as dt_util

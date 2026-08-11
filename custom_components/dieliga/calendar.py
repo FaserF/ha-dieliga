@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, CONF_TEAM_NAME
+from .const import CONF_TEAM_NAME, DOMAIN
 from .coordinator import DieligaDataUpdateCoordinator
 from .sensor import DieligaCoordinatorEntity
 
@@ -50,7 +50,7 @@ class DieligaCalendarEntity(DieligaCoordinatorEntity, CalendarEntity):
         now = dt_util.now()
         upcoming_events = [e for e in self._events if e.end > now]
         if upcoming_events:
-            return sorted(upcoming_events, key=lambda x: x.start)[0]
+            return min(upcoming_events, key=lambda x: x.start)
         return None
 
     async def async_get_events(
@@ -72,12 +72,11 @@ class DieligaCalendarEntity(DieligaCoordinatorEntity, CalendarEntity):
         events = []
         for game in data.get("games", []):
             # If team_name is set, only show games for that team
-            if self._team_name:
-                if (
-                    self._team_name.lower() != game["team_a_name"].lower()
-                    and self._team_name.lower() != game["team_b_name"].lower()
-                ):
-                    continue
+            if self._team_name and (
+                self._team_name.lower() != game["team_a_name"].lower()
+                and self._team_name.lower() != game["team_b_name"].lower()
+            ):
+                continue
 
             game_date_str = (
                 game["new_date"]

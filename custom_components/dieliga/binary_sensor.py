@@ -1,7 +1,6 @@
 """Binary sensor platform for dieLiga."""
 
 import logging
-from datetime import datetime
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -10,10 +9,9 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, CONF_TEAM_NAME
+from .const import CONF_TEAM_NAME, DOMAIN
 from .coordinator import DieligaDataUpdateCoordinator
 from .sensor import DieligaCoordinatorEntity
 

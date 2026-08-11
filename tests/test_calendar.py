@@ -1,11 +1,12 @@
 """Tests for the dieLiga calendar platform."""
 
+from datetime import timedelta
 from unittest.mock import MagicMock
-from datetime import datetime, timedelta
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
-import pytest
+
 from custom_components.dieliga.calendar import DieligaCalendarEntity
 
 
