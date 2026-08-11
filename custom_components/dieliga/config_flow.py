@@ -38,7 +38,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             client = DieligaApiClient(session, base_url)
             try:
                 await client.async_get_scoreboard(liga_id)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 errors["base"] = "cannot_connect"
             else:
                 _LOGGER.debug("Validated dieliga integration with liga_id: %s", liga_id)

@@ -8,6 +8,8 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from homeassistant.util import dt as dt_util
+
 from .const import DOMAIN, CONF_TEAM_NAME
 from .coordinator import DieligaDataUpdateCoordinator
 
@@ -143,8 +145,10 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
                     )
                     if game_date_str not in ("-", "", "Unknown", "?"):
                         try:
-                            game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
-                            if game_date < datetime.now():
+                            game_date = dt_util.as_local(
+                                datetime.strptime(game_date_str, "%Y-%m-%d")
+                            )
+                            if game_date < dt_util.now():
                                 completed_games += 1
                         except ValueError:
                             pass
@@ -195,8 +199,10 @@ class DieligaScheduleSensor(DieligaCoordinatorEntity, SensorEntity):
         )
         if game_date_str not in ("-", "", "Unknown", "?"):
             try:
-                game_date = datetime.strptime(game_date_str, "%Y-%m-%d")
-                return game_date < datetime.now()
+                game_date = dt_util.as_local(
+                    datetime.strptime(game_date_str, "%Y-%m-%d")
+                )
+                return game_date < dt_util.now()
             except ValueError:
                 pass
         return False

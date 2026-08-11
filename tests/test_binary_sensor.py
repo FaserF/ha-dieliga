@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from datetime import datetime
 
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 import pytest
 from custom_components.dieliga.binary_sensor import DieligaMatchTodayBinarySensor
 
@@ -14,7 +15,7 @@ async def test_match_today_binary_sensor_is_on(hass: HomeAssistant):
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
 
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    today_str = dt_util.now().strftime("%Y-%m-%d")
     coordinator.data = {
         "schedule": {
             "games": [
@@ -47,7 +48,7 @@ async def test_match_today_binary_sensor_new_date(hass: HomeAssistant):
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
 
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    today_str = dt_util.now().strftime("%Y-%m-%d")
     coordinator.data = {
         "schedule": {
             "games": [

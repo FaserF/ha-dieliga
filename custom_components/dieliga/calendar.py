@@ -47,7 +47,7 @@ class DieligaCalendarEntity(DieligaCoordinatorEntity, CalendarEntity):
     @property
     def event(self) -> CalendarEvent | None:
         """Return the next upcoming event."""
-        now = datetime.now()
+        now = dt_util.now()
         upcoming_events = [e for e in self._events if e.end > now]
         if upcoming_events:
             return sorted(upcoming_events, key=lambda x: x.start)[0]
@@ -95,7 +95,7 @@ class DieligaCalendarEntity(DieligaCoordinatorEntity, CalendarEntity):
 
             try:
                 # dieLiga times are often just HH:MM
-                start_dt_naive = datetime.strptime(
+                start_dt_naive = datetime.strptime(  # noqa: DTZ007
                     f"{game_date_str} {game_time_str}", "%Y-%m-%d %H:%M"
                 )
                 start_dt = dt_util.as_local(start_dt_naive)

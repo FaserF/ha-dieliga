@@ -11,6 +11,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from homeassistant.util import dt as dt_util
+
 from .const import DOMAIN, CONF_TEAM_NAME
 from .coordinator import DieligaDataUpdateCoordinator
 from .sensor import DieligaCoordinatorEntity
@@ -53,7 +55,7 @@ class DieligaMatchTodayBinarySensor(DieligaCoordinatorEntity, BinarySensorEntity
         if not data or not self._team_name:
             return False
 
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        today_str = dt_util.now().strftime("%Y-%m-%d")
         team_name_lower = self._team_name.lower()
 
         for game in data.get("games", []):

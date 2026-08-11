@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await hass.async_add_import_executor_job(
             importlib.import_module, f"custom_components.{DOMAIN}.diagnostics"
         )
-    except Exception:  # pylint: disable=broad-except
+    except Exception:  # noqa: BLE001 # pylint: disable=broad-except
         _LOGGER.debug("Diagnostics platform not found or failed to import")
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
