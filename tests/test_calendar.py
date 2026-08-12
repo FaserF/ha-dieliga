@@ -16,8 +16,7 @@ async def test_calendar_events(hass: HomeAssistant):
     coordinator = MagicMock()
     coordinator.liga_id = "1234"
 
-    start_date = dt_util.parse_datetime("2026-01-01T10:00:00+00:00")
-    assert start_date is not None
+    start_date = dt_util.as_local(datetime(2026, 1, 1, 10, 0))  # noqa: DTZ001
     end_date = start_date + timedelta(hours=2)
 
     coordinator.data = {
@@ -51,9 +50,8 @@ async def test_calendar_events(hass: HomeAssistant):
     calendar = DieligaCalendarEntity(coordinator, team_name="Team 1")
 
     # Get events
-    start_search = dt_util.parse_datetime("2026-01-01T00:00:00+00:00")
-    end_search = dt_util.parse_datetime("2026-01-01T23:59:00+00:00")
-    assert start_search is not None and end_search is not None
+    start_search = dt_util.as_local(datetime(2026, 1, 1, 0, 0))  # noqa: DTZ001
+    end_search = dt_util.as_local(datetime(2026, 1, 1, 23, 59))  # noqa: DTZ001
     events = await calendar.async_get_events(
         hass,
         start_search,
