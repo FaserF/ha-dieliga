@@ -1,6 +1,6 @@
 """Tests for the dieLiga calendar platform."""
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
