@@ -33,10 +33,14 @@ class DieligaDataUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Fetch data from API endpoint."""
+        """Fetch data from API endpoint concurrently."""
+        import asyncio
+
         try:
-            scoreboard = await self.client.async_get_scoreboard(self.liga_id)
-            schedule = await self.client.async_get_schedule(self.liga_id)
+            scoreboard, schedule = await asyncio.gather(
+                self.client.async_get_scoreboard(self.liga_id),
+                self.client.async_get_schedule(self.liga_id),
+            )
             return {"scoreboard": scoreboard, "schedule": schedule}
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
