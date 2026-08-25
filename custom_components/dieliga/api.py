@@ -23,7 +23,9 @@ class DieligaApiClient:
         """Fetch the scoreboard for a given liga_id."""
         url = f"{self._base_url}/schedule/summary/{liga_id}?output=xml"
         try:
-            async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=8)) as response:
+            async with self._session.get(
+                url, timeout=aiohttp.ClientTimeout(total=8)
+            ) as response:
                 response.raise_for_status()
                 text = await response.text()
                 return self._parse_scoreboard_xml(text)
@@ -35,7 +37,9 @@ class DieligaApiClient:
         """Fetch the schedule for a given liga_id."""
         url = f"{self._base_url}/schedule/schedule/{liga_id}?output=xml"
         try:
-            async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=8)) as response:
+            async with self._session.get(
+                url, timeout=aiohttp.ClientTimeout(total=8)
+            ) as response:
                 response.raise_for_status()
                 text = await response.text()
                 return self._parse_schedule_xml(text)
