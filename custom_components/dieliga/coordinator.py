@@ -27,7 +27,7 @@ class DieligaDataUpdateCoordinator(DataUpdateCoordinator):
         self.liga_id = liga_id
         from homeassistant.helpers import storage
 
-        self._store = storage.Store(hass, 1, f"dieliga_{liga_id}_cache")
+        self._store: Any = storage.Store(hass, 1, f"dieliga_{liga_id}_cache")
         self.last_successful_fetch = None
 
         super().__init__(
