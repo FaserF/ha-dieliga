@@ -19,6 +19,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up dieLiga from a config entry."""
     _LOGGER.debug("Setting up dieLiga entry with entry_id: %s", entry.entry_id)
 
+    if entry.unique_id is not None and not isinstance(entry.unique_id, str):
+        hass.config_entries.async_update_entry(entry, unique_id=str(entry.unique_id))
+
     base_url = entry.data[CONF_URL]
     liga_id = str(entry.data[CONF_LIGA_ID])
 
@@ -69,10 +72,15 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
 
     if config_entry.version == 1:
         new_data = {**config_entry.data}
-        # In version 2, we might want to ensure certain keys exist
-        # However, the current logic is robust enough.
-        # We just bump the version to 2.
         hass.config_entries.async_update_entry(config_entry, data=new_data, version=2)
+
+    if config_entry.version < 3:
+        unique_id = config_entry.unique_id
+        if unique_id is not None and not isinstance(unique_id, str):
+            unique_id = str(unique_id)
+        hass.config_entries.async_update_entry(
+            config_entry, unique_id=unique_id, version=3
+        )
 
     _LOGGER.info("Migration to version %s successful", config_entry.version)
     return True
